@@ -323,7 +323,7 @@ process_search(WORKERSIDE_ARGS *args, QUEUE_DATA *query)
       return;
     }
     else{ 
-     cnt = args->hmm_db->n;
+     cnt = (esl_opt_IsUsed(query->opts, "--hmmdb_idx")) ? 1 : args->hmm_db->n;
     }
   }
   

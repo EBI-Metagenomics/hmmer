@@ -277,6 +277,10 @@ process_SearchCmd(HMMD_COMMAND *cmd, WORKER_ENV *env, QUEUE_DATA *query)
       info[i].db_Z      = 0;
       info[i].om_list   = &env->hmm_db->list[query->inx];
       info[i].om_cnt    = query->cnt;
+      if (esl_opt_IsUsed(query->opts, "--hmmdb_idx")) {
+        info[i].om_list += esl_opt_GetInteger(query->opts, "--hmmdb_idx");
+        info[i].om_cnt = 1;
+      }
     }
 
     esl_threads_AddThread(threadObj, &info[i]);
