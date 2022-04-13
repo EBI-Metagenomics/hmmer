@@ -1,0 +1,2 @@
+src/hmmpgmd --master --hmmdb minifam.hmm
+src/hmmpgmd --worker 127.0.0.1

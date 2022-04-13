@@ -1,0 +1,7 @@
+Scores for complete sequence (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Model     Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------  -----------
+    1.6e-20   73.8   0.2    2.9e-20   73.0   0.0    1.4  1  PF13460.8  NAD(P)H-binding
+
+

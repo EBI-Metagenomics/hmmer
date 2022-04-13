@@ -1,0 +1,5 @@
+@--hmmdb 1 --acc --cut_ga
+>pdb|1L2Y|A Chain A, TC5b
+NLYIQWLKDGGPSSGRPPPS
+//
+//

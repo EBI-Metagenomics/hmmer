@@ -1,0 +1,22 @@
+Domain annotation for each model (and alignments):
+>> PF13460.8  NAD(P)H-binding
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   73.0   0.0   1.5e-24   2.9e-20       1     146 [.      48     191 ..      48     202 .. 0.87
+
+  Alignments for each domain:
+  == domain 1  score: 73.0 bits;  conditional E-value: 1.5e-24
+                             TTTSHHHHHHHHHHHHT.T-EEEEEESS.GGGHHHHHHTT-SEEEE--T..TS--GGGGTT-SEEEE----TTSHHHH.......HH CS
+               PF13460.8   1 GAtGkvGrlvvkellargghevtalvRn.peklaeleaeaglevvegdvtdvedlaealkgadaVvsalggggkdeeg.......ak 79 
+                             G++G vG++++ke+l++ g+ v  l R+  ++l++    + ++  +gd++++++l+ al+g+  V+s++gg g+++++        +
+  tr|Q949S7|Q949S7_ARATH  48 GGNGYVGSHICKEALRQ-GFSVSSLSRSgRSSLHDS-WVDDVTWHQGDLLSPDSLKPALEGITSVISCVGGFGSNSQMvringtaNI 132
+                             9****************.6********967888886.479*****************************999996666677777799 PP
+
+                             HHHHHHHHHT--EEEEE--TT-S-GGGS-G......GGHHHHHHHHHHHHH.HHHSSSEEEEEEE-SE CS
+               PF13460.8  80 nvidaakeagvkRfvlvsaigvgdevpgkfgewnkellkaylkakraaeel.lrasgldyTivrpgaL 146
+                             n+++aa e+gvkRfv++sa++ g         + ++l+++y++ kra e++ l + g    ++rpg++
+  tr|Q949S7|Q949S7_ARATH 133 NAVKAAAEQGVKRFVYISAADFG---------VINNLIRGYFEGKRATEAEiLDKFGNRGSVLRPGFI 191
+                             99******************998.........567889*********998724445888888888876 PP
+
+
+
