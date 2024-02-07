@@ -71,6 +71,7 @@ typedef struct {
   pthread_mutex_t  work_mutex;
   pthread_cond_t   start_cond;
   pthread_cond_t   complete_cond;
+  pthread_cond_t   loaded_cond;
 
   int              db_version;
   P7_SEQCACHE     *seq_db;
@@ -93,6 +94,7 @@ typedef struct {
   uint32_t         num_shards;  // new for sharding
   uint32_t         *worker_ips;  // IP addresses of the workers we've connected to
 
+  int              loaded;
 } WORKERSIDE_ARGS;
 
 typedef struct worker_s {
@@ -559,6 +561,32 @@ master_process_shard(ESL_GETOPTS *go)
   impl_Init();
   p7_FLogsumInit();     /* we're going to use table-driven Logsum() approximations at times */
 
+  /* initialize the worker structure */
+  if ((n = pthread_mutex_init(&worker_comm.work_mutex, NULL)) != 0)   LOG_FATAL_MSG("mutex init", n);
+  if ((n = pthread_cond_init(&worker_comm.start_cond, NULL)) != 0)    LOG_FATAL_MSG("cond init", n);
+  if ((n = pthread_cond_init(&worker_comm.complete_cond, NULL)) != 0) LOG_FATAL_MSG("cond init", n);
+  if ((n = pthread_cond_init(&worker_comm.loaded_cond, NULL)) != 0) LOG_FATAL_MSG("cond init", n);
+
+  worker_comm.sock_fd    = -1;
+  worker_comm.head       = NULL;
+  worker_comm.tail       = NULL;
+  worker_comm.pending    = NULL;
+  worker_comm.idling     = NULL;
+  worker_comm.db_version = 1;
+  worker_comm.num_shards = esl_opt_GetInteger(go, "--num_shards");
+  ESL_ALLOC(worker_comm.worker_ips, worker_comm.num_shards * sizeof(uint32_t));
+  for(i = 0; i < worker_comm.num_shards; i++){
+    worker_comm.worker_ips[i] = INVALID_IP;
+  }
+
+  worker_comm.ready      = 0;
+  worker_comm.failed     = 0;
+  worker_comm.pend_cnt   = 0;
+  worker_comm.idle_cnt   = 0;
+  worker_comm.loaded     = 0;
+
+  setup_workerside_comm(go, &worker_comm);
+
   if (esl_opt_IsUsed(go, "--seqdb")) {
     char *name = esl_opt_GetString(go, "--seqdb");
     if ((status = p7_seqcache_Open_master(name, &seq_db, errbuf)) != eslOK) 
@@ -589,6 +617,17 @@ master_process_shard(ESL_GETOPTS *go)
   printf("Data loaded into memory. Master is ready.\n");
   setvbuf (stdout, NULL, _IOFBF, BUFSIZ);
 
+  /* Set dbs and notify worker threads */
+  if ((n = pthread_mutex_lock(&worker_comm.work_mutex)) != 0) LOG_FATAL_MSG("mutex lock", n);
+
+  worker_comm.seq_db     = seq_db;
+  worker_comm.hmm_db     = hmm_db;
+  worker_comm.loaded     = 1;
+  
+  if ((n = pthread_cond_broadcast(&worker_comm.loaded_cond)) != 0) LOG_FATAL_MSG("cond broadcast", n);
+
+  if ((n = pthread_mutex_unlock(&worker_comm.work_mutex)) != 0) LOG_FATAL_MSG("mutex unlock", n);
+  
   /* initialize the search stack, set it up for interthread communication  */
   cmdstack = esl_stack_PCreate();
   esl_stack_UseMutex(cmdstack);
@@ -597,32 +636,6 @@ master_process_shard(ESL_GETOPTS *go)
   /* start the communications with the web clients */
   client_comm.cmdstack = cmdstack;
   setup_clientside_comm(go, &client_comm);
-
-  /* initialize the worker structure */
-  if ((n = pthread_mutex_init(&worker_comm.work_mutex, NULL)) != 0)   LOG_FATAL_MSG("mutex init", n);
-  if ((n = pthread_cond_init(&worker_comm.start_cond, NULL)) != 0)    LOG_FATAL_MSG("cond init", n);
-  if ((n = pthread_cond_init(&worker_comm.complete_cond, NULL)) != 0) LOG_FATAL_MSG("cond init", n);
-
-  worker_comm.sock_fd    = -1;
-  worker_comm.head       = NULL;
-  worker_comm.tail       = NULL;
-  worker_comm.pending    = NULL;
-  worker_comm.idling     = NULL;
-  worker_comm.seq_db     = seq_db;
-  worker_comm.hmm_db     = hmm_db;
-  worker_comm.db_version = 1;
-  worker_comm.num_shards = esl_opt_GetInteger(go, "--num_shards");
-  ESL_ALLOC(worker_comm.worker_ips, worker_comm.num_shards * sizeof(uint32_t));
-  for(i = 0; i < worker_comm.num_shards; i++){
-    worker_comm.worker_ips[i] = INVALID_IP;
-  }
-
-  worker_comm.ready      = 0;
-  worker_comm.failed     = 0;
-  worker_comm.pend_cnt   = 0;
-  worker_comm.idle_cnt   = 0;
-
-  setup_workerside_comm(go, &worker_comm);
 
   /* read query hmm/sequence 
    * the PPop() will wait until a client pushes a command to the queue
@@ -1717,9 +1730,15 @@ workerside_thread(void *arg)
 
   updated = 0;
   while (!updated) {
-    /* get the database version to load */
+    /* Wait for main thread to load dbs and get the database version to load */
     if ((n = pthread_mutex_lock (&parent->work_mutex)) != 0) LOG_FATAL_MSG("mutex lock", n);
+
+    while (!parent->loaded) {
+      if ((n = pthread_cond_wait(&parent->loaded_cond, &parent->work_mutex)) != 0) LOG_FATAL_MSG("cond wait", n);
+    }
+    
     version = parent->db_version;
+
     if ((n = pthread_mutex_unlock (&parent->work_mutex)) != 0)  LOG_FATAL_MSG("mutex unlock", n);
 
     n = sizeof(HMMD_COMMAND_SHARD);
