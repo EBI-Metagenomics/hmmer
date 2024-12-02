@@ -9,12 +9,45 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
+#include <pthread.h>
 
 #include "hmmer.h"
 #include "hmmpgmd.h"
 
 #include "esl_sqio.h"
 
+#define CHUNK_SIZE 10
+
+typedef struct {
+    int start_index;
+    int num_hits;
+    P7_TOPHITS *th;
+    uint8_t *p;
+    uint32_t n;
+} ThreadData;
+
+void*
+deserialize_hits_chunk(void* arg)
+{
+    ThreadData *data = (ThreadData*)arg;
+    int start = data->start_index;
+    int end = start + data->num_hits;
+
+    for (int i = start; i < end; ++i) {
+        // Set all internal pointers of the hit to NULL before deserializing into it
+        data->th->unsrt[i].name = NULL;
+        data->th->unsrt[i].acc = NULL;
+        data->th->unsrt[i].desc = NULL;
+        data->th->unsrt[i].dcl = NULL;
+
+        if (p7_hit_Deserialize((uint8_t *) data->p, &(data->n), &(data->th->unsrt[i])) != eslOK) {
+            printf("Unable to deserialize hit %d\n", i);
+            pthread_exit(NULL);
+        }
+    }
+    return NULL;
+}
 
 /******************************************************************************
  *# 1. The <hmmpgmd2msa> function
@@ -84,7 +117,10 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
   int      i;
   int      c;
   int      status;
-
+  
+  int num_chunks = 0;
+  pthread_t *threads = NULL;
+  ThreadData *thread_data = NULL;
   
   th = p7_tophits_Create();
   ESL_ALLOC(stats, sizeof(HMMD_SEARCH_STATS));
@@ -127,18 +163,28 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
     p7_tophits_Grow(th);
   }
 
-  // deserialize all the hits
-  for (i = 0; i < stats->nhits; ++i) {
-    // set all internal pointers of the hit to NULL before deserializing into it
-    th->unsrt[i].name = NULL;
-    th->unsrt[i].acc = NULL;
-    th->unsrt[i].desc = NULL;
-    th->unsrt[i].dcl = NULL;
+  // Deserialize all the hits in chunks
+  num_chunks = (int)ceil((double)stats->nhits / CHUNK_SIZE);
+  ESL_ALLOC(threads, sizeof(pthread_t) * num_chunks);
+  ESL_ALLOC(thread_data, sizeof(ThreadData) * num_chunks);
 
-    if(p7_hit_Deserialize((uint8_t *) p, &n, &(th->unsrt[i])) != eslOK){
-      printf("Unable to deserialize hit %d\n", i);
-      exit(0);
-    }  
+
+  for (int i = 0; i < num_chunks; ++i) {
+    int start_index = i * CHUNK_SIZE;
+    int num_hits = (i == num_chunks - 1) ? (stats->nhits - start_index) : CHUNK_SIZE;
+
+    thread_data[i].start_index = start_index;
+    thread_data[i].num_hits = num_hits;
+    thread_data[i].th = th;
+    thread_data[i].p = p;
+    thread_data[i].n = n;
+
+    pthread_create(&threads[i], NULL, deserialize_hits_chunk, (void*)&thread_data[i]);
+  }
+
+  // Wait for all threads to finish
+  for (int i = 0; i < num_chunks; ++i) {
+    pthread_join(threads[i], NULL);
   }
 
   for (i=0; i<stats->nhits; i++) {
