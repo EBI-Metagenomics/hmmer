@@ -122,8 +122,11 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
     goto ERROR;
   }
 
+  /* set this before growing so p7_tophits_Grow uses the right number */
+  th->N = stats->nhits;
+
   /* ok, it looks legitimate */
-  while(stats->nhits > th->Nalloc){ // make sure we have enough space in the tophits structure
+  while(th->N > th->Nalloc){ // make sure we have enough space in the tophits structure
     p7_tophits_Grow(th);
   }
 
@@ -152,7 +155,6 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
   }
 
 //  th.unsrt     = NULL;
-  th->N         = stats->nhits;
   th->nreported = 0;
   th->nincluded = 0;
   th->is_sorted_by_sortkey = 0;
