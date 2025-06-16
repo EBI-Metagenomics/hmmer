@@ -130,8 +130,6 @@ p7_tophits_Grow(P7_TOPHITS *h)
   int     i;
   int     status;
 
-  if (h->N < h->Nalloc) return eslOK; /* we have enough room for another hit */
-
   ESL_RALLOC(h->hit,   p, sizeof(P7_HIT *) * Nalloc);
   ESL_RALLOC(h->unsrt, p, sizeof(P7_HIT)   * Nalloc);
 
