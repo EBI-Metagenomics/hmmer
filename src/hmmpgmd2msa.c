@@ -79,6 +79,7 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
   P7_TOPHITS         *th         = NULL;
   ESL_MSA           *msa         = NULL;
   char              *p           = (char*)data;  // pointer used to walk along data, must be char* to allow pointer arithmetic 
+  int               *seqidx      = NULL;
   int                extra_sqcnt = 0;
   uint32_t n = 0;
   int      i;
@@ -169,12 +170,16 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
     }
   }
 
+  ESL_ALLOC(seqidx, sizeof(int));
+
   for (i = 0; i < th->N; i++) {
+    esl_mem_strtoi(th->hit[i]->name, 16, 10, NULL, seqidx);
+
     /* Go through the hits and set to be excluded or included as necessary */
     if(th->hit[i]->flags & p7_IS_INCLUDED){
       if(excl_size > 0){
         for( c = 0; c < excl_size; c++){
-          if(excl[c] == (long)(th->hit[i]->name) ){
+          if(excl[c] == *seqidx ){
             th->hit[i]->flags = p7_IS_DROPPED;
             th->hit[i]->nincluded = 0;
             break;
@@ -184,7 +189,7 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
     }else{
       if(incl_size > 0){
     	for( c = 0; c < incl_size; c++){
-          if(incl[c] == (long)th->hit[i]->name ){
+          if(incl[c] == *seqidx){
             th->hit[i]->flags = p7_IS_INCLUDED;
           }
         }
@@ -201,6 +206,7 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
   esl_msa_FormatAuthor(msa, "hmmpgmd (HMMER %s)", HMMER_VERSION);
 
   if (qtr != NULL) free(qtr);
+  if (seqidx != NULL) free(seqidx);
   p7_tophits_Destroy(th);
 
   free(stats);
@@ -209,6 +215,7 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
 
 ERROR:
   if (qtr != NULL) free(qtr);
+  if (seqidx != NULL) free(seqidx);
   p7_tophits_Destroy(th);
   if(stats != NULL) free(stats);
   return status;
