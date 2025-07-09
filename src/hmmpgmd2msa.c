@@ -14,6 +14,7 @@
 #include "hmmpgmd.h"
 
 #include "esl_sqio.h"
+#include "esl_mem.h"
 
 
 /******************************************************************************
@@ -83,6 +84,7 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
   int                extra_sqcnt = 0;
   uint32_t n = 0;
   int      i;
+  int      j;
   int      c;
   int      status;
 
@@ -158,6 +160,19 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
   th->nincluded = 0;
   th->is_sorted_by_sortkey = 0;
   th->is_sorted_by_seqidx  = 0;
+
+  if(incl_size > 0){
+    for (i = 0; i < th->N; i++) {
+      /* Go through hits below threshold and include their domains */
+      if(!(th->hit[i]->flags & p7_IS_INCLUDED)){
+        for (j = 0; j < th->hit[i]->ndom; j++) {
+          if(th->hit[i]->dcl[j].is_reported) th->hit[i]->dcl[j].is_included = TRUE;
+        }
+
+        th->hit[i]->nincluded = th->hit[i]->nreported;
+      }
+    }
+  }
 
   /* jackhmmer (hmmer web) - allow all hits to be unchecked */
   if(excl_all){
