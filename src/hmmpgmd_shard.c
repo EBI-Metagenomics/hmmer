@@ -23,19 +23,20 @@
 #define CONF_FILE "/etc/hmmpgmd.conf"
 
 static ESL_OPTIONS cmdlineOpts[] = {
-  /* name           type         default      env   range           toggles  reqs   incomp           help                                                     docgroup */
-  { "-h",           eslARG_NONE,   FALSE,     NULL, NULL,           NULL,  NULL,  NULL,            "show brief help on version and usage",                         1 },
-  { "--master",     eslARG_NONE,    NULL,     NULL, NULL,           NULL,  NULL,  "--worker",      "run program as the master server",                            12 },
-  { "--worker",     eslARG_STRING,  NULL,     NULL, NULL,           NULL,  NULL,  "--master",      "run program as a worker with server at <s>",                  12 },
-  { "--cport",      eslARG_INT,     "51371",  NULL, "49151<n<65536",NULL,  NULL,  "--worker",      "port to use for client/server communication",                 12 },
-  { "--wport",      eslARG_INT,     "51372",  NULL, "49151<n<65536",NULL,  NULL,  NULL,            "port to use for server/worker communication",                 12 },
-  { "--ccncts",     eslARG_INT,     "16",     NULL, "n>0",          NULL,  NULL,  "--worker",      "maximum number of client side connections to accept",         12 },
-  { "--wcncts",     eslARG_INT,     "32",     NULL, "n>0",          NULL,  NULL,  "--worker",      "maximum number of worker side connections to accept",         12 },
-  { "--pid",        eslARG_OUTFILE, NULL,     NULL, NULL,           NULL,  NULL,  NULL,            "file to write process id to",                                 12 },
-  { "--seqdb",      eslARG_INFILE,  NULL,     NULL, NULL,           NULL,  NULL,  "--worker",      "protein database to cache for searches",                      12 },
-  { "--hmmdb",      eslARG_INFILE,  NULL,     NULL, NULL,           NULL,  NULL,  "--worker",      "hmm database to cache for searches",                          12 },
-  { "--cpu",        eslARG_INT,  p7_NCPU,"HMMER_NCPU","n>0",        NULL,  NULL,  "--master",      "number of parallel CPU workers to use for multithreads",      12 },
-  { "--num_shards", eslARG_INT,    "1",      NULL, "1<=n<512",      NULL,  NULL,  "--worker",      "number of worker nodes that will connect to the master",      12 },
+  /* name           type             default   env            range            toggles  reqs   incomp           help                                                     docgroup */
+  { "-h",           eslARG_NONE,     FALSE,    NULL,          NULL,            NULL,    NULL,  NULL,            "show brief help on version and usage",                         1 },
+  { "--master",     eslARG_NONE,     NULL,     NULL,          NULL,            NULL,    NULL,  "--worker",      "run program as the master server",                            12 },
+  { "--worker",     eslARG_STRING,   NULL,     NULL,          NULL,            NULL,    NULL,  "--master",      "run program as a worker with server at <s>",                  12 },
+  { "--cport",      eslARG_INT,      "51371",  NULL,          "49151<n<65536", NULL,    NULL,  "--worker",      "port to use for client/server communication",                 12 },
+  { "--wport",      eslARG_INT,      "51372",  NULL,          "49151<n<65536", NULL,    NULL,  NULL,            "port to use for server/worker communication",                 12 },
+  { "--ccncts",     eslARG_INT,      "16",     NULL,          "n>0",           NULL,    NULL,  "--worker",      "maximum number of client side connections to accept",         12 },
+  { "--wcncts",     eslARG_INT,      "32",     NULL,          "n>0",           NULL,    NULL,  "--worker",      "maximum number of worker side connections to accept",         12 },
+  { "--pid",        eslARG_OUTFILE,  NULL,     NULL,          NULL,            NULL,    NULL,  NULL,            "file to write process id to",                                 12 },
+  { "--seqdb",      eslARG_INFILE,   NULL,     NULL,          NULL,            NULL,    NULL,  "--worker",      "protein database to cache for searches",                      12 },
+  { "--hmmdb",      eslARG_INFILE,   NULL,     NULL,          NULL,            NULL,    NULL,  "--worker",      "hmm database to cache for searches",                          12 },
+  { "--cpu",        eslARG_INT,      p7_NCPU,  "HMMER_NCPU",  "n>0",           NULL,    NULL,  "--master",      "number of parallel CPU workers to use for multithreads",      12 },
+  { "--num_shards", eslARG_INT,      "1",      NULL,          "1<=n<512",      NULL,    NULL,  "--worker",      "number of worker nodes that will connect to the master",      12 },
+  { "--ready",      eslARG_OUTFILE,  NULL,     NULL,          NULL,            NULL,    NULL,  NULL,            "file to write if process is ready (database loaded)",         12 },
   {  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   };
 
@@ -165,6 +166,9 @@ main(int argc, char **argv)
 
   /* check if we need to write out our pid */
   if (esl_opt_IsOn(go, "--pid")) write_pid(go);
+
+  /* check if we need to remove the ready file */
+  if (esl_opt_IsOn(go, "--ready")) hmmpgmd_RemoveReady(go);
 
   if      (esl_opt_IsUsed(go, "--master"))  master_process_shard(go);
   else if (esl_opt_IsUsed(go, "--worker"))  worker_process_shard(go);
