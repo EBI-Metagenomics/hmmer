@@ -182,20 +182,25 @@ worker_process_shard(ESL_GETOPTS *go)
 
 
       switch (cmd->hdr.command) {
-      case HMMD_CMD_INIT: /* printf("Worker received init command\n"); */   process_InitCmd  (cmd, &env);                break;
+      case HMMD_CMD_INIT:
+        process_InitCmd(cmd, &env);
+        if (esl_opt_IsOn(go, "--ready")) hmmpgmd_WriteReady(go);
+        break;
       case HMMD_CMD_SCAN: 
-	  {	  
- 		   query = process_QueryCmd(cmd, &env);
- 		   process_SearchCmd(cmd, &env, query);
- 		   free_QueueData_shard(query);
-	  }
-		  break;
-      case HMMD_CMD_SEARCH:
-		    query = process_QueryCmd(cmd, &env);
-	     process_SearchCmd(cmd, &env, query);
+        query = process_QueryCmd(cmd, &env);
+        process_SearchCmd(cmd, &env, query);
         free_QueueData_shard(query);
-         break;
-      case HMMD_CMD_SHUTDOWN:  process_Shutdown (cmd, &env);  shutdown = 1; break;
+        break;
+      case HMMD_CMD_SEARCH:
+        query = process_QueryCmd(cmd, &env);
+        process_SearchCmd(cmd, &env, query);
+        free_QueueData_shard(query);
+        break;
+      case HMMD_CMD_SHUTDOWN:
+        process_Shutdown (cmd, &env);
+        if (esl_opt_IsOn(go, "--ready")) hmmpgmd_RemoveReady(go);
+        shutdown = 1;
+        break;
       default: p7_syslog(LOG_ERR,"[%s:%d] - unknown command %d (%d)\n", __FILE__, __LINE__, cmd->hdr.command, cmd->hdr.length);
       }
 

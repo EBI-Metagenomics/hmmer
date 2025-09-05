@@ -578,7 +578,7 @@ master_process_shard(ESL_GETOPTS *go)
     p7_hmmcache_SetNumericNames(hmm_db);
 
     printf("Loaded profile db %s;  models: %d  memory: %" PRId64 "\n", 
-	   name, hmm_db->n, (uint64_t) p7_hmmcache_Sizeof(hmm_db));
+      name, hmm_db->n, (uint64_t) p7_hmmcache_Sizeof(hmm_db));
   }
 
   /* if stdout is redirected at the commandline, it causes printf's to be buffered,
@@ -623,6 +623,9 @@ master_process_shard(ESL_GETOPTS *go)
   worker_comm.idle_cnt   = 0;
 
   setup_workerside_comm(go, &worker_comm);
+  
+  /* check if we need to indicate ready status */
+  if (esl_opt_IsOn(go, "--ready")) hmmpgmd_WriteReady(go);
 
   /* read query hmm/sequence 
    * the PPop() will wait until a client pushes a command to the queue

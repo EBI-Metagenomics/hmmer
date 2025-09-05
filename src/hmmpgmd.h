@@ -149,4 +149,8 @@ extern int hmmd_search_status_Serialize(const HMMD_SEARCH_STATUS *obj, uint8_t *
 extern int hmmd_search_status_Deserialize(const uint8_t *buf, uint32_t *n, HMMD_SEARCH_STATUS *ret_obj);
 extern int hmmd_search_status_TestSample(ESL_RAND64 *rng, HMMD_SEARCH_STATUS **ret_obj);
 extern int hmmd_search_status_Compare(HMMD_SEARCH_STATUS *first, HMMD_SEARCH_STATUS *second);
+
+/* hmmdutils.c */
+extern void hmmpgmd_WriteReady(ESL_GETOPTS *go);
+extern void hmmpgmd_RemoveReady(ESL_GETOPTS *go);
 #endif /*P7_HMMPGMD_INCLUDED*/
