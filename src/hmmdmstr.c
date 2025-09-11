@@ -127,8 +127,8 @@ static void forward_results(QUEUE_DATA *query, SEARCH_RESULTS *results);
 static void
 print_client_msg(int fd, int status, char *format, va_list ap)
 {
-  uint32_t nalloc =0;
-  uint32_t buf_offset = 0;
+  uint64_t nalloc =0;
+  uint64_t buf_offset = 0;
   uint8_t *buf = NULL;
   char  ebuf[512];
 
@@ -778,7 +778,7 @@ forward_results(QUEUE_DATA *query, SEARCH_RESULTS *results)
   P7_HIT             *hits  = NULL;
   int fd, n;
   uint8_t **buf, **buf2, **buf3, *buf_ptr, *buf2_ptr, *buf3_ptr;
-  uint32_t nalloc, nalloc2, nalloc3, buf_offset, buf_offset2, buf_offset3;
+  uint64_t nalloc, nalloc2, nalloc3, buf_offset, buf_offset2, buf_offset3;
   enum p7_pipemodes_e mode;
   int i;
   // Initialize these pointers-to-pointers that we'll use for sending data
@@ -1480,7 +1480,7 @@ workerside_loop(WORKERSIDE_ARGS *data, WORKER_DATA *worker)
   int    total;
   char  *ptr;
   uint8_t *buf; // Buffer to receive bytes into over sockets
-  uint32_t buf_position; //Index into buffer for deserialize
+  uint64_t buf_position; //Index into buffer for deserialize
   memset(&cmd, 0, sizeof(HMMD_COMMAND)); /* silence valgrind. if we ever serialize structs properly, remove */
   w = esl_stopwatch_Create();
 

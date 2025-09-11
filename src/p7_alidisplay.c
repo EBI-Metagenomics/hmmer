@@ -461,10 +461,10 @@ p7_alidisplay_Sizeof(const P7_ALIDISPLAY *ad)
  * Throws:    Returns eslEMEM if unable to allocate or re-allocate memory.  Returns eslEINVAL if obj == NULL, n == NULL, or buf == NULL
  *            Returns eslFAIL if one of the internal calculations fails a consistency check.
  */
-int p7_alidisplay_Serialize(const P7_ALIDISPLAY *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc){
+int p7_alidisplay_Serialize(const P7_ALIDISPLAY *obj, uint8_t **buf, uint64_t *n, uint64_t *nalloc){
 
   int status; // error variable used by ESL_ALLOC
-  uint32_t ser_size; // size of the structure when serialized
+  uint64_t ser_size; // size of the structure when serialized
   uint8_t *ptr; // current position within the buffer
   uint32_t network_32bit; // hold 32-bit fields after conversion to network order
   uint64_t network_64bit; // hold 64-bit fields after conversion to network order
@@ -699,14 +699,14 @@ int p7_alidisplay_Serialize(const P7_ALIDISPLAY *obj, uint8_t **buf, uint32_t *n
  *            the buffer in ret_obj to match the size of the deserialized object. Returns eslFAIL if one of the
  *            internal calculations fails a consistency check.
  */
-extern int p7_alidisplay_Deserialize(const uint8_t *buf, uint32_t *n, P7_ALIDISPLAY *ret_obj){
+extern int p7_alidisplay_Deserialize(const uint8_t *buf, uint64_t *n, P7_ALIDISPLAY *ret_obj){
   int status;  // Standard Easel error code variable
 
   uint8_t *ptr;
   char *mem_ptr;
   uint64_t network_64bit; // holds 64-bit values in network order 
   uint32_t network_32bit; // holds 64-bit values in network order 
-  uint32_t obj_size; // How much space does the variable-length portion of the serialized object take up?
+  uint64_t obj_size; // How much space does the variable-length portion of the serialized object take up?
   uint8_t presence_flags; // bit-vector that tells us which strings are present in the object
   int string_length; // used to hold the length of strings copied out of serialized object
 
@@ -1945,8 +1945,8 @@ utest_Serialize(ESL_RANDOMNESS *rng, int ntrials)
   P7_ALIDISPLAY **serial   = malloc(ntrials * sizeof(P7_ALIDISPLAY *));
   P7_ALIDISPLAY **deserial = malloc(ntrials * sizeof(P7_ALIDISPLAY *));
   uint8_t       **buf      = malloc(sizeof(uint8_t *));
-  uint32_t        n        = 0;
-  uint32_t        nalloc   = 0;
+  uint64_t        n        = 0;
+  uint64_t        nalloc   = 0;
   int             alignment_length;
   int             i;
 
@@ -1996,8 +1996,8 @@ utest_serialize_error_conditions(ESL_RANDOMNESS *rng)
   char msg[]            = "utest_serialize_error_conditions failed";
   P7_ALIDISPLAY *foo    = NULL;
   uint8_t      **buf    = malloc(sizeof(uint8_t *)); 
-  uint32_t       n      = 0;
-  uint32_t       nalloc = 0;
+  uint64_t       n      = 0;
+  uint64_t       nalloc = 0;
 
   // Create an alisplay to work with.  Don't really care about its contents -- other tests will verify
   // correct serialization and deserialization
@@ -2019,7 +2019,7 @@ utest_deserialize_error_conditions(ESL_RANDOMNESS *rng)
   P7_ALIDISPLAY  *sampled  = NULL; // sampled alidisplay that we'll serialze
   P7_ALIDISPLAY  *deserial = NULL; // alidisplay to hold the deserialized object
   uint8_t        *buf      = NULL;
-  uint32_t        n = 0, nalloc = 0;
+  uint64_t        n = 0, nalloc = 0;
 
   if ((deserial = p7_alidisplay_Create_empty())            == NULL)  esl_fatal(msg);
   if ( p7_alidisplay_Sample(rng, 100, &sampled)            != eslOK) esl_fatal(msg);

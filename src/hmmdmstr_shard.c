@@ -147,8 +147,8 @@ static void forward_results(QUEUE_DATA_SHARD *query, SEARCH_RESULTS *results);
 
 static void print_client_msg(int fd, int status, char *format, va_list ap)
 {
-  uint32_t nalloc =0;
-  uint32_t buf_offset = 0;
+  uint64_t nalloc =0;
+  uint64_t buf_offset = 0;
   uint8_t *buf = NULL;
   char  ebuf[512];
 
@@ -465,9 +465,6 @@ process_search(WORKERSIDE_ARGS *args, QUEUE_DATA_SHARD *query)
     client_msg(query->sock, eslFAIL, "Not enough compute nodes available for the number of shards specified.  %d nodes available, %d required\n", args->ready, args->num_shards);
   } else if (args->failed > 0) {
     client_msg(query->sock, eslFAIL, "Errors running search\n");
-    clear_results(args, &results);
-  } else if (results.stats.nhits > 1000000) {
-    client_msg(query->sock, eslENOSPACE, "Number of hits exceeds 1,000,000\n");
     clear_results(args, &results);
   } else {
     forward_results(query, &results);  
@@ -823,7 +820,7 @@ forward_results(QUEUE_DATA_SHARD *query, SEARCH_RESULTS *results)
   int fd;
   int n, i;
   uint8_t **buf, **buf2, **buf3, *buf_ptr, *buf2_ptr, *buf3_ptr;
-  uint32_t nalloc, nalloc2, nalloc3, buf_offset, buf_offset2, buf_offset3;
+  uint64_t nalloc, nalloc2, nalloc3, buf_offset, buf_offset2, buf_offset3;
   enum p7_pipemodes_e mode;
 
   // Initialize these pointers-to-pointers that we'll use for sending data
@@ -1525,7 +1522,7 @@ workerside_loop(WORKERSIDE_ARGS *data, WORKER_DATA *worker)
   int    total;
   char  *ptr;
   uint8_t *buf; // Buffer to receive bytes into over sockets
-  uint32_t buf_position; //Index into buffer for deserialize
+  uint64_t buf_position; //Index into buffer for deserialize
   memset(&cmd, 0, sizeof(HMMD_COMMAND_SHARD)); /* silence valgrind. if we ever serialize structs properly, remove */
   w = esl_stopwatch_Create();
 
