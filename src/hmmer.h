@@ -1472,8 +1472,8 @@ extern P7_ALIDISPLAY *p7_alidisplay_Create(const P7_TRACE *tr, int which, const 
 extern P7_ALIDISPLAY *p7_alidisplay_Create_empty();
 extern P7_ALIDISPLAY *p7_alidisplay_Clone(const P7_ALIDISPLAY *ad);
 extern size_t         p7_alidisplay_Sizeof(const P7_ALIDISPLAY *ad);
-extern int            p7_alidisplay_Serialize(const P7_ALIDISPLAY *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc);
-extern int            p7_alidisplay_Deserialize(const uint8_t *buf, uint32_t *n, P7_ALIDISPLAY *ret_obj);
+extern int            p7_alidisplay_Serialize(const P7_ALIDISPLAY *obj, uint8_t **buf, uint64_t *n, uint64_t *nalloc);
+extern int            p7_alidisplay_Deserialize(const uint8_t *buf, uint64_t *n, P7_ALIDISPLAY *ret_obj);
 extern int            p7_alidisplay_Serialize_old(P7_ALIDISPLAY *ad);
 extern int            p7_alidisplay_Deserialize_old(P7_ALIDISPLAY *ad);
 extern void           p7_alidisplay_Destroy(P7_ALIDISPLAY *ad);
@@ -1519,8 +1519,8 @@ extern int p7_Builder_MaxLength      (P7_HMM *hmm, double emit_thresh);
 extern P7_DOMAIN *p7_domain_Create_empty();
 extern void p7_domain_Destroy(P7_DOMAIN *obj);
 extern int p7_domain_Copy(const P7_DOMAIN *src, P7_DOMAIN *dst);
-extern int p7_domain_Serialize(const P7_DOMAIN *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc);
-extern int p7_domain_Deserialize(const uint8_t *buf, uint32_t *n, P7_DOMAIN *ret_obj);
+extern int p7_domain_Serialize(const P7_DOMAIN *obj, uint8_t **buf, uint64_t *n, uint64_t *nalloc);
+extern int p7_domain_Deserialize(const uint8_t *buf, uint64_t *n, P7_DOMAIN *ret_obj);
 extern int p7_domain_TestSample(ESL_RAND64 *rng, P7_DOMAIN **ret_obj);
 extern int p7_domain_Compare(P7_DOMAIN *first, P7_DOMAIN *second, double atol, double rtol);
 
@@ -1552,8 +1552,8 @@ extern int     p7_gmx_DumpWindow(FILE *fp, P7_GMX *gx, int istart, int iend, int
 extern P7_HIT *p7_hit_Create_empty();
 extern void p7_hit_Destroy(P7_HIT *the_hit);
 extern int p7_hit_Copy(const P7_HIT *src, P7_HIT *dst);
-extern int p7_hit_Serialize(const P7_HIT *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc);
-extern int p7_hit_Deserialize(const uint8_t *buf, uint32_t *n, P7_HIT *ret_obj);
+extern int p7_hit_Serialize(const P7_HIT *obj, uint8_t **buf, uint64_t *n, uint64_t *nalloc);
+extern int p7_hit_Deserialize(const uint8_t *buf, uint64_t *n, P7_HIT *ret_obj);
 extern int p7_hit_TestSample(ESL_RAND64 *rng, P7_HIT **ret_obj);
 extern int p7_hit_Compare(P7_HIT *first, P7_HIT *second, double atol, double rtol);
 
