@@ -466,6 +466,9 @@ process_search(WORKERSIDE_ARGS *args, QUEUE_DATA_SHARD *query)
   } else if (args->failed > 0) {
     client_msg(query->sock, eslFAIL, "Errors running search\n");
     clear_results(args, &results);
+  } else if (results.stats.nhits > 1000000) {
+    client_msg(query->sock, eslENOSPACE, "Number of hits exceeds 1,000,000\n");
+    clear_results(args, &results);
   } else {
     forward_results(query, &results);  
   }
