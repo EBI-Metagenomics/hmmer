@@ -774,8 +774,8 @@ send_results(int fd, ESL_STOPWATCH *w, P7_TOPHITS *th, P7_PIPELINE *pli){
   uint8_t **buf2 = NULL; // Buffer for the initial HMMD_SEARCH_STATUS message
   uint8_t *buf_ptr = NULL; 
   uint8_t *buf2_ptr = NULL;
-  uint32_t n = 0; // index within buffer of serialized data
-  uint32_t nalloc = 0; // Size of serialized buffer
+  uint64_t n = 0; // index within buffer of serialized data
+  uint64_t nalloc = 0; // Size of serialized buffer
   int i;
   // set up handles to buffers
   buf = &buf_ptr;

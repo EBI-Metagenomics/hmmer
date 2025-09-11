@@ -182,20 +182,25 @@ worker_process_shard(ESL_GETOPTS *go)
 
 
       switch (cmd->hdr.command) {
-      case HMMD_CMD_INIT: /* printf("Worker received init command\n"); */   process_InitCmd  (cmd, &env);                break;
+      case HMMD_CMD_INIT:
+        process_InitCmd(cmd, &env);
+        if (esl_opt_IsOn(go, "--ready")) hmmpgmd_WriteReady(go);
+        break;
       case HMMD_CMD_SCAN: 
-	  {	  
- 		   query = process_QueryCmd(cmd, &env);
- 		   process_SearchCmd(cmd, &env, query);
- 		   free_QueueData_shard(query);
-	  }
-		  break;
-      case HMMD_CMD_SEARCH:
-		    query = process_QueryCmd(cmd, &env);
-	     process_SearchCmd(cmd, &env, query);
+        query = process_QueryCmd(cmd, &env);
+        process_SearchCmd(cmd, &env, query);
         free_QueueData_shard(query);
-         break;
-      case HMMD_CMD_SHUTDOWN:  process_Shutdown (cmd, &env);  shutdown = 1; break;
+        break;
+      case HMMD_CMD_SEARCH:
+        query = process_QueryCmd(cmd, &env);
+        process_SearchCmd(cmd, &env, query);
+        free_QueueData_shard(query);
+        break;
+      case HMMD_CMD_SHUTDOWN:
+        process_Shutdown (cmd, &env);
+        if (esl_opt_IsOn(go, "--ready")) hmmpgmd_RemoveReady(go);
+        shutdown = 1;
+        break;
       default: p7_syslog(LOG_ERR,"[%s:%d] - unknown command %d (%d)\n", __FILE__, __LINE__, cmd->hdr.command, cmd->hdr.length);
       }
 
@@ -808,8 +813,8 @@ send_results(int fd, ESL_STOPWATCH *w, P7_TOPHITS *th, P7_PIPELINE *pli){
   uint8_t **buf2 = NULL; // Buffer for the initial HMMD_SEARCH_STATUS message
   uint8_t *buf_ptr = NULL; 
   uint8_t *buf2_ptr = NULL;
-  uint32_t n = 0; // index within buffer of serialized data
-  uint32_t nalloc = 0; // Size of serialized buffer
+  uint64_t n = 0; // index within buffer of serialized data
+  uint64_t nalloc = 0; // Size of serialized buffer
   int i;
   // set up handles to buffers
   buf = &buf_ptr;

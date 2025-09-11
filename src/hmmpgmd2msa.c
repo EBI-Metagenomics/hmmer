@@ -82,7 +82,7 @@ hmmpgmd2msa(void *data, P7_HMM *hmm, ESL_SQ *qsq, int *incl, int incl_size, int 
   char              *p           = (char*)data;  // pointer used to walk along data, must be char* to allow pointer arithmetic 
   int               *seqidx      = NULL;
   int                extra_sqcnt = 0;
-  uint32_t n = 0;
+  uint64_t n = 0;
   int      i;
   int      j;
   int      c;
@@ -536,8 +536,8 @@ void hmmpgmd2msa_utest(int ntrials, char *hmmfile){
   ESL_SQ * sequences[NUM_TEST_SEQUENCES];
   uint8_t **buf, *buf_data;
   HMMD_SEARCH_STATS stats;
-  uint32_t n = 0;
-  uint32_t nalloc = 0;
+  uint64_t n = 0;
+  uint64_t nalloc = 0;
   int i, j, k;
 
   buf_data = NULL;

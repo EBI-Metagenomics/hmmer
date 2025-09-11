@@ -136,8 +136,8 @@ extern int  process_searchopts(int fd, char *cmdstr, ESL_GETOPTS **ret_opts);
 extern void worker_process(ESL_GETOPTS *go);
 extern void master_process(ESL_GETOPTS *go);
 
-extern int p7_hmmd_search_stats_Serialize(const HMMD_SEARCH_STATS *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc);
-extern int p7_hmmd_search_stats_Deserialize(const uint8_t *buf, uint32_t *pos, HMMD_SEARCH_STATS *ret_obj);
+extern int p7_hmmd_search_stats_Serialize(const HMMD_SEARCH_STATS *obj, uint8_t **buf, uint64_t *n, uint64_t *nalloc);
+extern int p7_hmmd_search_stats_Deserialize(const uint8_t *buf, uint64_t *pos, HMMD_SEARCH_STATS *ret_obj);
 
 #define LOG_FATAL_MSG(str, err) {                                               \
     p7_syslog(LOG_CRIT,"[%s:%d] - %s error %d - %s\n", __FILE__, __LINE__, str, err, strerror(err)); \
@@ -145,8 +145,12 @@ extern int p7_hmmd_search_stats_Deserialize(const uint8_t *buf, uint32_t *pos, H
   }
   
 /* hmmd_search_status.c */
-extern int hmmd_search_status_Serialize(const HMMD_SEARCH_STATUS *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc);
-extern int hmmd_search_status_Deserialize(const uint8_t *buf, uint32_t *n, HMMD_SEARCH_STATUS *ret_obj);
+extern int hmmd_search_status_Serialize(const HMMD_SEARCH_STATUS *obj, uint8_t **buf, uint64_t *n, uint64_t *nalloc);
+extern int hmmd_search_status_Deserialize(const uint8_t *buf, uint64_t *n, HMMD_SEARCH_STATUS *ret_obj);
 extern int hmmd_search_status_TestSample(ESL_RAND64 *rng, HMMD_SEARCH_STATUS **ret_obj);
 extern int hmmd_search_status_Compare(HMMD_SEARCH_STATUS *first, HMMD_SEARCH_STATUS *second);
+
+/* hmmdutils.c */
+extern void hmmpgmd_WriteReady(ESL_GETOPTS *go);
+extern void hmmpgmd_RemoveReady(ESL_GETOPTS *go);
 #endif /*P7_HMMPGMD_INCLUDED*/

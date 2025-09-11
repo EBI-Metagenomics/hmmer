@@ -153,10 +153,10 @@ ERROR:
 // one int for the length of the scores_per_pos array (in floats)
 #define SER_BASE_SIZE (4 * sizeof(int)) + (6 * sizeof(int64_t)) + (5 * sizeof(float)) + (sizeof(double))
 
-extern int p7_domain_Serialize(const P7_DOMAIN *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc){
+extern int p7_domain_Serialize(const P7_DOMAIN *obj, uint8_t **buf, uint64_t *n, uint64_t *nalloc){
 
   int status; // error variable used by ESL_ALLOC
-  uint32_t ser_size; // size of the structure when serialized
+  uint64_t ser_size; // size of the structure when serialized
   uint8_t *ptr; // current position within the buffer
   uint32_t network_32bit; // hold 32-bit fields after conversion to network order
   uint64_t network_64bit; // hold 64-bit fields after conversion to network order
@@ -320,14 +320,14 @@ ERROR:
  * Throws:    Returns eslEINVAL if ret_obj == NULL, buf == NULL, or N == NULL.  Returnts eslEMEM if unable to allocate
  *            required memory in ret_obj. Returns eslFAIL if a calculation fails a consistency check.         
  */
-extern int p7_domain_Deserialize(const uint8_t *buf, uint32_t *n, P7_DOMAIN *ret_obj){
+extern int p7_domain_Deserialize(const uint8_t *buf, uint64_t *n, P7_DOMAIN *ret_obj){
 
   uint8_t *ptr;
   uint64_t network_64bit; // holds 64-bit values in network order 
   uint64_t host_64bit; //variable to hold 64-bit values after conversion to host order
   uint32_t network_32bit; // holds 64-bit values in network order 
   uint32_t host_32bit; //variable to hold 64-bit values after conversion to host order
-  uint32_t obj_size; // How much space does the variable-length portion of the serialized object take up?
+  uint64_t obj_size; // How much space does the variable-length portion of the serialized object take up?
   int status; 
   int i;
 
@@ -626,8 +626,8 @@ static void utest_Serialize_error_conditions(){
   int status;  // Easel error code variable
   P7_DOMAIN *foo = NULL;
   uint8_t **buf = NULL;
-  uint32_t n;
-  uint32_t nalloc;
+  uint64_t n;
+  uint64_t nalloc;
   ESL_RAND64 *rng= NULL;
   rng = esl_rand64_Create(0);
 
@@ -723,7 +723,7 @@ static void utest_Deserialize_error_conditions(){
   P7_DOMAIN *deserial = NULL; // alidisplay to hold the deserialized object
   char msg[]="utest_Deserialize_error_conditions failed";
   uint8_t *buf = NULL;
-  uint32_t n = 0, nalloc = 0;
+  uint64_t n = 0, nalloc = 0;
 
   deserial = p7_domain_Create_empty();
   if(deserial == NULL){
@@ -766,8 +766,8 @@ static void utest_Deserialize_error_conditions(){
 static void utest_Serialize(int ntrials){
   int i;
   uint8_t **buf=NULL;
-  uint32_t n;
-  uint32_t nalloc;
+  uint64_t n;
+  uint64_t nalloc;
   P7_DOMAIN **serial=NULL, *deserial=NULL;
   int status;
   char msg[] = "utest_Serialize failed";

@@ -289,4 +289,44 @@ ERROR:
   return eslEMEM;
 }
 
+/* Function:  hmmpgmd_WriteReady()
+ * Synopsis:  Write ready status to file
+ *
+ * Purpose:   Once the database has been loaded by master or worker, writes 'READY' to the '--ready' file
+ *
+ * Returns:   void
+ */
+void
+hmmpgmd_WriteReady(ESL_GETOPTS *go)
+{
+  char   *ready_file = esl_opt_GetString(go, "--ready");
+  FILE   *fp       = fopen(ready_file, "w");
+
+  if (!fp) p7_Fail("Unable to open READY file %s for writing.", ready_file);
+  fprintf(fp,"READY\n");
+  fclose(fp);
+}
+
+
+/* Function:  hmmpgmd_RemoveReady()
+ * Synopsis:  Remove the ready file
+ *
+ * Purpose:   Removes the '--ready' file, usually on startup
+ *
+ * Returns:   void
+ */
+void
+hmmpgmd_RemoveReady(ESL_GETOPTS *go)
+{
+  int   status;
+  char  *ready_file = esl_opt_GetString(go, "--ready");
+
+  if (!ready_file)
+    return;
+
+  status = unlink(ready_file);
+
+  if (status && errno != ENOENT) p7_Fail("Unable to remove READY file %s: %s", ready_file, strerror(errno));
+}
+
 #endif /*HMMER_THREADS*/

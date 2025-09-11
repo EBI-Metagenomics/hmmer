@@ -49,7 +49,7 @@
  *.           or if *buf = NULL and either *n != 0 or *nalloc != 0
  */
 
-extern int hmmd_search_status_Serialize(const HMMD_SEARCH_STATUS *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc){
+extern int hmmd_search_status_Serialize(const HMMD_SEARCH_STATUS *obj, uint8_t **buf, uint64_t *n, uint64_t *nalloc){
   int status; // error variable used by ESL_ALLOC
   uint8_t *ptr; // current position within the buffer
   uint32_t network_32bit; // hold 32-bit fields after conversion to network order
@@ -107,7 +107,7 @@ ERROR:
  *
  * Throws:    Returns eslEINVAL if ret_obj == NULL, buf == NULL, or n == NULL.        
  */
-extern int hmmd_search_status_Deserialize(const uint8_t *buf, uint32_t *n, HMMD_SEARCH_STATUS *ret_obj){
+extern int hmmd_search_status_Deserialize(const uint8_t *buf, uint64_t *n, HMMD_SEARCH_STATUS *ret_obj){
   uint8_t *ptr;
   uint64_t network_64bit; // holds 64-bit values in network order 
   uint32_t network_32bit; // holds 64-bit values in network order 
@@ -204,8 +204,8 @@ static void utest_Serialize_error_conditions(){
   int status;  // Easel error code variable
   HMMD_SEARCH_STATUS *foo=NULL;
   uint8_t **buf;
-  uint32_t n;
-  uint32_t nalloc;
+  uint64_t n;
+  uint64_t nalloc;
   ESL_RAND64 *rng;
 
   char msg[] = "utest_Serialize_error_conditions failed";
@@ -291,7 +291,7 @@ static void utest_Deserialize_error_conditions(){
   HMMD_SEARCH_STATUS *deserial = NULL; // alidisplay to hold the deserialized object
   char msg[]="utest_Deserialize_error_conditions failed";
   uint8_t *buf = NULL;
-  uint32_t n = 0, nalloc = 0;
+  uint64_t n = 0, nalloc = 0;
   ESL_RAND64 *rng = esl_rand64_Create(0);
   hmmd_search_status_TestSample(rng, &deserial);
   if(deserial == NULL){
@@ -335,8 +335,8 @@ static void utest_Deserialize_error_conditions(){
 static void utest_Serialize(int ntrials){
   int i;
   uint8_t **buf=NULL;
-  uint32_t n;
-  uint32_t nalloc;
+  uint64_t n;
+  uint64_t nalloc;
   HMMD_SEARCH_STATUS **serial=NULL, *deserial=NULL;
   int status;
   char msg[] = "utest_Serialize failed";

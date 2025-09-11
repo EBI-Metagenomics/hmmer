@@ -44,7 +44,7 @@
  *            n == NULL, or
  *            if an unknown enum value is found in obj
  */
-extern int p7_hmmd_search_stats_Serialize(const HMMD_SEARCH_STATS *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc){
+extern int p7_hmmd_search_stats_Serialize(const HMMD_SEARCH_STATS *obj, uint8_t **buf, uint64_t *n, uint64_t *nalloc){
 
   int status; // error variable used by ESL_ALLOC
   int ser_size; // size of the structure when serialized
@@ -238,7 +238,7 @@ ERROR: // We only get here if memory (re)allocation failed, so no cleanup requir
  *.           value is found in one of the fields of the serialized object.
  *            Returns eslEMEM if unable to allocate memory
  */
-extern int p7_hmmd_search_stats_Deserialize(const uint8_t *buf, uint32_t *n, HMMD_SEARCH_STATS *ret_obj){
+extern int p7_hmmd_search_stats_Deserialize(const uint8_t *buf, uint64_t *n, HMMD_SEARCH_STATS *ret_obj){
   uint8_t *ptr;
   uint64_t network_64bit; // holds 64-bit values in network order 
   uint64_t host_64bit; //variable to hold 64-bit values after conversion to host order
@@ -519,7 +519,7 @@ utest_serialize()
   uint8_t **buffer = NULL;
   double    low    = -1000.0;
   double    high   = 1000.0;
-  uint32_t pos, buffer_size;
+  uint64_t pos, buffer_size;
   int i,j;
   int status;
 
@@ -592,8 +592,8 @@ utest_serialize_error_conditions()
 {
   char msg[]      = "serialize_error_conditions utest failed";
   uint8_t **buf   = NULL;
-  uint32_t n      = 0;
-  uint32_t nalloc = 0;
+  uint64_t n      = 0;
+  uint64_t nalloc = 0;
   HMMD_SEARCH_STATS foo;
   int status;  
 
@@ -664,8 +664,8 @@ utest_deserialize_error_conditions()
 {
   char msg[]      = "deserialize_error_conditions utest failed";
   uint8_t **buf   = NULL;
-  uint32_t n      = 0;
-  uint32_t nalloc = 0;
+  uint64_t n      = 0;
+  uint64_t nalloc = 0;
   HMMD_SEARCH_STATS foo;
   int status; 
 

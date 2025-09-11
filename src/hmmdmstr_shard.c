@@ -147,8 +147,8 @@ static void forward_results(QUEUE_DATA_SHARD *query, SEARCH_RESULTS *results);
 
 static void print_client_msg(int fd, int status, char *format, va_list ap)
 {
-  uint32_t nalloc =0;
-  uint32_t buf_offset = 0;
+  uint64_t nalloc =0;
+  uint64_t buf_offset = 0;
   uint8_t *buf = NULL;
   char  ebuf[512];
 
@@ -578,7 +578,7 @@ master_process_shard(ESL_GETOPTS *go)
     p7_hmmcache_SetNumericNames(hmm_db);
 
     printf("Loaded profile db %s;  models: %d  memory: %" PRId64 "\n", 
-	   name, hmm_db->n, (uint64_t) p7_hmmcache_Sizeof(hmm_db));
+      name, hmm_db->n, (uint64_t) p7_hmmcache_Sizeof(hmm_db));
   }
 
   /* if stdout is redirected at the commandline, it causes printf's to be buffered,
@@ -623,6 +623,9 @@ master_process_shard(ESL_GETOPTS *go)
   worker_comm.idle_cnt   = 0;
 
   setup_workerside_comm(go, &worker_comm);
+  
+  /* check if we need to indicate ready status */
+  if (esl_opt_IsOn(go, "--ready")) hmmpgmd_WriteReady(go);
 
   /* read query hmm/sequence 
    * the PPop() will wait until a client pushes a command to the queue
@@ -817,7 +820,7 @@ forward_results(QUEUE_DATA_SHARD *query, SEARCH_RESULTS *results)
   int fd;
   int n, i;
   uint8_t **buf, **buf2, **buf3, *buf_ptr, *buf2_ptr, *buf3_ptr;
-  uint32_t nalloc, nalloc2, nalloc3, buf_offset, buf_offset2, buf_offset3;
+  uint64_t nalloc, nalloc2, nalloc3, buf_offset, buf_offset2, buf_offset3;
   enum p7_pipemodes_e mode;
 
   // Initialize these pointers-to-pointers that we'll use for sending data
@@ -1519,7 +1522,7 @@ workerside_loop(WORKERSIDE_ARGS *data, WORKER_DATA *worker)
   int    total;
   char  *ptr;
   uint8_t *buf; // Buffer to receive bytes into over sockets
-  uint32_t buf_position; //Index into buffer for deserialize
+  uint64_t buf_position; //Index into buffer for deserialize
   memset(&cmd, 0, sizeof(HMMD_COMMAND_SHARD)); /* silence valgrind. if we ever serialize structs properly, remove */
   w = esl_stopwatch_Create();
 
