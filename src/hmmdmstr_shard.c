@@ -818,7 +818,8 @@ forward_results(QUEUE_DATA_SHARD *query, SEARCH_RESULTS *results)
   P7_DOMAIN         **dcl   = NULL;
   P7_HIT             *hits  = NULL;
   int fd;
-  int n, i;
+  int i;
+  uint64_t n;
   uint8_t **buf, **buf2, **buf3, *buf_ptr, *buf2_ptr, *buf3_ptr;
   uint64_t nalloc, nalloc2, nalloc3, buf_offset, buf_offset2, buf_offset3;
   enum p7_pipemodes_e mode;
